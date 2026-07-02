@@ -4,6 +4,10 @@
 
 set -euo pipefail
 
+# Force C locale so printf/awk/grep use '.' as decimal separator
+# regardless of the user's locale (fixes "Ungültige Zahl" on de_DE etc.)
+export LC_ALL=C
+
 INFILE="${1:-/dev/stdin}"
 
 if [[ ! -f "$INFILE" && "$INFILE" != "/dev/stdin" ]]; then
@@ -61,6 +65,60 @@ parse_fields() {
         printf "%s='\''%s'\''\n", key, safe
     }
 
+    # Map English field labels to their German equivalents (existing logic uses German)
+    function normalize_key(k) {
+        # CPU - Clocks
+        if (k == "Core Speed")  return "Kerngeschwindigkeit"
+        if (k == "Multiplier")  return "Multiplikator"
+        if (k == "Bus Speed")   return "Bustakt"
+        # CPU - Processor
+        if (k == "Vendor")      return "Hersteller"
+        if (k == "Code Name")   return "Codename"
+        if (k == "Package")     return "Paket"
+        if (k == "Technology")  return "Technologie"
+        if (k == "Voltage")     return "Spannung"
+        if (k == "Specification") return "Spezifikation"
+        if (k == "Family")      return "Familie"
+        if (k == "Disp. Family") return "Angez. Familie"
+        if (k == "Model")       return "Modell"
+        if (k == "Disp. Model") return "Angez. Modell"
+        if (k == "Instructions") return "Instruktionen"
+        # CPU - Caches
+        if (k == "L1 Data")     return "L1 Daten"
+        # CPU - Count
+        if (k == "Cores")       return "Kerne"
+        # Motherboard
+        if (k == "Manufacturer") return "Hersteller"
+        if (k == "Brand")       return "Marke"
+        if (k == "Date")        return "Datum"
+        # Memory
+        if (k == "Part Number") return "Teilenummer"
+        if (k == "Type")        return "Typ"
+        if (k == "Type Detail") return "Typdetail"
+        if (k == "Speed")       return "Geschwindigkeit"
+        if (k == "Manufacturer" && section == "MEM") return "Hersteller"
+        if (k == "Size")        return "Größe"
+        # GPU
+        if (k == "Device ID")   return "Gerätekennung"
+        if (k == "VBIOS Version") return "VBIOS-Version"
+        if (k == "Core Clock")  return "Kerntakt"
+        if (k == "Memory Clock") return "Speichertakt"
+        if (k == "Memory Used") return "Verwendeter Speicher"
+        if (k == "Compute Unit") return "Recheneinheit"
+        if (k == "UMD Version") return "UMD-Version"
+        # Motherboard - extra
+        if (k == "Revision")    return "Revision"
+        # CPU - extra
+        if (k == "Temp.")       return "Temp."
+        # GPU - extra
+        if (k == "Driver")      return "Treiber"
+        if (k == "Temperature") return "Temperatur"
+        if (k == "Interface")   return "Schnittstelle"
+        # If the section is MEM, treat "Hersteller" -> already correct
+        # Fallback: return key as-is
+        return k
+    }
+
     BEGIN {
         section = ""
         subsection = ""
@@ -74,34 +132,32 @@ parse_fields() {
     />>>>>>>>>> CPU <<<<<<<<<</         { section = "CPU";    subsection = ""; next }
     />>>>>>>>>> Caches <<<<<<<<<</      { section = "CACHES"; subsection = ""; next }
     />>>>>>>>>> Motherboard <<<<<<<<<</ { section = "MB";     subsection = ""; next }
-    />>>>>>>>>> Speicher <<<<<<<<<<>/   { section = "MEM";    subsection = ""; next }
-    />>>>>>>>>> Speicher <<<<<<<<<<$/   { section = "MEM";    subsection = ""; next }
+    />>>>>>>>>> (Speicher|Memory) <<<<<<<<<</ || />>>>>>>>>> (Speicher|Memory) <<<<<<<<<<$/ { section = "MEM"; subsection = ""; next }
     />>>>>>>>>> System <<<<<<<<<<>/     { section = "SYS";    subsection = ""; next }
     />>>>>>>>>> System <<<<<<<<<<$/     { section = "SYS";    subsection = ""; next }
-    />>>>>>>>>> Grafik <<<<<<<<<<>/     { section = "GPU";    subsection = ""; next }
-    />>>>>>>>>> Grafik <<<<<<<<<<$/     { section = "GPU";    subsection = ""; next }
+    />>>>>>>>>> (Grafik|Graphics) <<<<<<<<<</ || />>>>>>>>>> (Grafik|Graphics) <<<<<<<<<<$/ { section = "GPU"; subsection = ""; next }
 
     # ---- Subsection detection ----
-    /\*\*\*\*\* Takte \*\*\*\*\*/       { subsection = "TAKTE"; next }
-    /\*\*\*\*\* Prozessor \*\*\*\*\*/   { subsection = "PROC"; next }
+    /\*\*\*\*\* Takte \*\*\*\*\*/ || /\*\*\*\*\* Clocks \*\*\*\*\*/ { subsection = "TAKTE"; next }
+    /\*\*\*\*\* Prozessor \*\*\*\*\*/ || /\*\*\*\*\* Processor \*\*\*\*\*/ { subsection = "PROC"; next }
     /\*\*\*\*\* Caches \*\*\*\*\*/      { subsection = "CACHES"; next }
-    /\*\*\*\*\* Anzahl \*\*\*\*\*/      { subsection = "ANZAHL"; next }
+    /\*\*\*\*\* Anzahl \*\*\*\*\*/ || /\*\*\*\*\* Count \*\*\*\*\*/ { subsection = "ANZAHL"; next }
     /\*\*\*\*\* Motherboard \*\*\*\*\*/ { subsection = "BOARD"; next }
     /\*\*\*\*\* BIOS \*\*\*\*\*/        { subsection = "BIOS"; next }
-    /\*\*\*\*\* Chipsatz \*\*\*\*\*/    { subsection = "CHIPSET"; next }
-    /\*\*\*\*\* Betriebssystem \*\*\*\*\*/ { subsection = "OS"; next }
+    /\*\*\*\*\* Chipsatz \*\*\*\*\*/ || /\*\*\*\*\* Chipset \*\*\*\*\*/ { subsection = "CHIPSET"; next }
+    /\*\*\*\*\* Betriebssystem \*\*\*\*\*/ || /\*\*\*\*\* Operating System \*\*\*\*\*/ { subsection = "OS"; next }
 
-    # Memory stick index
-    /\*\*\*\*\* Stick [0-9]+ \*\*\*\*\*/ {
-        match($0, /Stick ([0-9]+)/, m)
-        mem_idx = m[1] + 0
+    # Memory stick index (German: Stick, English: Slot)
+    /\*\*\*\*\* Stick [0-9]+ \*\*\*\*\*/ || /\*\*\*\*\* Slot [0-9]+ \*\*\*\*\*/ {
+        match($0, /(Stick|Slot) ([0-9]+)/, m)
+        mem_idx = m[2] + 0
         next
     }
 
-    # GPU card index
-    /\*\*\*\*\* Karte [0-9]+ \*\*\*\*\*/ {
-        match($0, /Karte ([0-9]+)/, m)
-        gpu_idx = m[1] + 0
+    # GPU card index (German: Karte, English: Card)
+    /\*\*\*\*\* Karte [0-9]+ \*\*\*\*\*/ || /\*\*\*\*\* Card [0-9]+ \*\*\*\*\*/ {
+        match($0, /(Karte|Card) ([0-9]+)/, m)
+        gpu_idx = m[2] + 0
         next
     }
 
@@ -112,6 +168,9 @@ parse_fields() {
         k = substr(line, 1, index(line, ":") - 1)
         gsub(/[ \t]+$/, "", k)
         v = val(line)
+
+        # Normalize English field labels to German (existing parsing uses German)
+        k = normalize_key(k)
 
         # CPU section
         if (section == "CPU") {
@@ -133,6 +192,7 @@ parse_fields() {
                 if (k == "Angez. Modell")   cpu_emodel   = v
                 if (k == "Stepping")        cpu_stepping = v
                 if (k == "Instruktionen")   cpu_insn     = v
+                if (k == "Temp.")           cpu_temp     = decomma(v)
             }
             if (subsection == "CACHES") {
                 if (k == "L1 Daten") cpu_l1d = v
@@ -149,8 +209,9 @@ parse_fields() {
         # Motherboard section
         if (section == "MB") {
             if (subsection == "BOARD") {
-                if (k == "Hersteller") mb_vendor = v
-                if (k == "Modell")     mb_model  = v
+                if (k == "Hersteller") mb_vendor   = v
+                if (k == "Modell")     mb_model    = v
+                if (k == "Revision")   mb_revision = v
             }
             if (subsection == "BIOS") {
                 if (k == "Marke")   bios_vendor  = v
@@ -198,6 +259,10 @@ parse_fields() {
             if (k == "Speichertakt")            gpu_mem_clk[gpu_idx]  = decomma(v)
             if (k == "Verwendeter Speicher")    gpu_mem_used[gpu_idx] = v
             if (k == "Recheneinheit")           gpu_cu[gpu_idx]       = v
+            if (k == "Treiber")                 gpu_driver[gpu_idx]    = v
+            if (k == "Temperatur")              gpu_temp[gpu_idx]      = decomma(v)
+            if (k == "Schnittstelle")           gpu_interface[gpu_idx] = v
+            if (k == "UMD-Version")             gpu_umd[gpu_idx]       = v
             # Track highest index seen
             if (gpu_idx > gpu_max) gpu_max = gpu_idx
         }
@@ -227,6 +292,7 @@ parse_fields() {
         kv("CPU_EMODEL",     cpu_emodel)
         kv("CPU_STEPPING",   cpu_stepping)
         kv("CPU_INSN",       cpu_insn)
+        kv("CPU_TEMP",       cpu_temp)
         kv("CPU_L1D",        cpu_l1d)
         kv("CPU_L1I",        cpu_l1i)
         kv("CPU_L2",         cpu_l2)
@@ -235,6 +301,7 @@ parse_fields() {
         kv("CPU_THREADS",    cpu_threads)
         kv("MB_VENDOR",      mb_vendor)
         kv("MB_MODEL",       mb_model)
+        kv("MB_REVISION",    mb_revision)
         kv("BIOS_VENDOR",    bios_vendor)
         kv("BIOS_VERSION",   bios_version)
         kv("BIOS_DATE",      bios_date)
@@ -265,6 +332,10 @@ parse_fields() {
             kv("GPU_MEMCLK_"  i, gpu_mem_clk[i])
             kv("GPU_MEMUSED_" i, gpu_mem_used[i])
             kv("GPU_CU_"      i, gpu_cu[i])
+            kv("GPU_DRIVER_" i, gpu_driver[i])
+            kv("GPU_TEMP_"   i, gpu_temp[i])
+            kv("GPU_INTERFACE_" i, gpu_interface[i])
+            kv("GPU_UMD_"    i, gpu_umd[i])
         }
     }
     '
@@ -312,7 +383,7 @@ transform_socket() {
     local raw="$1"
     # Strip PGA- prefix from pin count if present
     local socket
-    socket=$(echo "$raw" | sed 's/^/Socket /' | sed 's/(PGA-\([0-9]*\))/(\1)/')
+    socket=$(echo "$raw" | sed 's/^/Socket /' | sed 's/(PGA-\([0-9]*\))/(\1)/;s/(LGA-\([0-9]*\))/(\1)/')
     # If no parenthesised pin count, look up known sockets
     if ! echo "$socket" | grep -q '('; then
         case "$raw" in
@@ -376,9 +447,9 @@ transform_cache() {
         gsub(/[ \t]+/, " ")
         gsub(/^ | $/, "")
 
-        # Extract way count from "N-fach"
+        # Extract way count from "N-fach" (German) or "N-way" (English)
         way = ""
-        if (match($0, /([0-9]+)-fach/, m)) way = m[1]
+        if (match($0, /([0-9]+)-fach/, m) || match($0, /([0-9]+)-way/, m)) way = m[1]
 
         # Strip everything from the first comma onward (covers "-fach assoziativ, 64-Bytes ...")
         sub(/,.*/, "")
@@ -448,8 +519,9 @@ transform_insn() {
         for part in $avx_inner; do
             part=$(echo "$part" | tr -d ' ')
             case "$part" in
-                1) append "AVX" ;;
-                2) append "AVX2" ;;
+                1)   append "AVX" ;;
+                2)   append "AVX2" ;;
+                512) append "AVX-512" ;;
             esac
         done
         IFS="$IFS_SAVE"
@@ -523,11 +595,12 @@ transform_mem_size() {
 # Memory speed: "3200 MT/s (konfiguriert) / 3200 MT/s (max)" -> "DDR4-3200 (1600 MHz)"
 transform_mem_speed() {
     local raw="$1"
+    local memtype="${2:-DDR4}"
     local mts
     mts=$(echo "$raw" | grep -oE '[0-9]+' | head -1)
     if [[ -n "$mts" ]]; then
         local mhz=$(( mts / 2 ))
-        echo "DDR4-${mts} (${mhz} MHz)"
+        echo "${memtype}-${mts} (${mhz} MHz)"
     fi
 }
 
@@ -797,6 +870,7 @@ field "Manufacturer"       "$CPU_MFR"
 field "Base frequency (cores)" "${BUS_NUM} MHz"
 field "Base frequency (mem.)"  "${BUS_NUM} MHz"
 [[ -n "$CPU_INSN_OUT" ]]  && field "Instructions sets" "$CPU_INSN_OUT"
+[[ -n "$CPU_TEMP" ]]      && field "Temperature"       "$CPU_TEMP"
 [[ -n "$CPU_L1D_OUT" ]]   && field "L1 Data cache"         "$CPU_L1D_OUT"
 [[ -n "$CPU_L1I_OUT" ]]   && field "L1 Instruction cache"  "$CPU_L1I_OUT"
 [[ -n "$CPU_L2_OUT" ]]    && field "L2 cache"              "$CPU_L2_OUT"
@@ -810,8 +884,9 @@ printf "DMI\n"
 sep
 printf "\n"
 printf "DMI Baseboard\n"
-[[ -n "$MB_VENDOR" ]]      && field "vendor" "$MB_VENDOR"
-[[ -n "$MB_MODEL" ]]       && field "model"  "$MB_MODEL"
+[[ -n "$MB_VENDOR" ]]      && field "vendor"   "$MB_VENDOR"
+[[ -n "$MB_MODEL" ]]       && field "model"    "$MB_MODEL"
+[[ -n "$MB_REVISION" ]]    && field "revision" "$MB_REVISION"
 # Southbridge: derive from chipset vendor
 if [[ -n "$CHIPSET_VENDOR" ]]; then
     if echo "$CHIPSET_VENDOR" | grep -qi "AMD"; then
@@ -848,7 +923,7 @@ if [[ "${MEM_MAX:-"-1"}" -ge 0 ]]; then
         MEM_TYPE_OUT=$(transform_mem_type "$MEM_TYPE_VAL")
         MEM_FMT_OUT=$(transform_mem_format "$MEM_TYPE_VAL" "$MEM_DETAIL_VAL")
         MEM_SIZE_OUT=$(transform_mem_size "$MEM_SIZE_VAL")
-        MEM_BW_OUT=$(transform_mem_speed "$MEM_SPEED_VAL")
+        MEM_BW_OUT=$(transform_mem_speed "$MEM_SPEED_VAL" "$MEM_TYPE_OUT")
 
         [[ -n "$MEM_TYPE_OUT" ]]   && field "Memory type"           "$MEM_TYPE_OUT"
         [[ -n "$MEM_FMT_OUT" ]]    && field "Module format"         "$MEM_FMT_OUT"
@@ -880,6 +955,10 @@ if [[ "${GPU_MAX:-"-1"}" -ge 0 ]]; then
         eval "GPU_CORECLK_VAL=\${GPU_CORECLK_${i}:-}"
         eval "GPU_MEMCLK_VAL=\${GPU_MEMCLK_${i}:-}"
         eval "GPU_MEMUSED_VAL=\${GPU_MEMUSED_${i}:-}"
+        eval "GPU_DRIVER_VAL=\${GPU_DRIVER_${i}:-}"
+        eval "GPU_TEMP_VAL=\${GPU_TEMP_${i}:-}"
+        eval "GPU_INTERFACE_VAL=\${GPU_INTERFACE_${i}:-}"
+        eval "GPU_UMD_VAL=\${GPU_UMD_${i}:-}"
 
         GPU_NAME_OUT=$(transform_gpu_name "$GPU_MODEL_VAL" "$GPU_VENDOR_VAL" "$GPU_VBIOS_VAL")
         GPU_MEMSIZE_OUT=$(transform_gpu_mem "$GPU_MEMUSED_VAL")
@@ -896,6 +975,9 @@ if [[ "${GPU_MAX:-"-1"}" -ge 0 ]]; then
         [[ -n "$GPU_MEMTYPE_OUT" ]]   && field "Memory type"      "$GPU_MEMTYPE_OUT"
         [[ -n "$GPU_CORECLK_NUM" ]]   && field "Core clock"       "${GPU_CORECLK_NUM} MHz"
         [[ -n "$GPU_MEMCLK_NUM" ]]    && field "Memory clock"     "${GPU_MEMCLK_NUM} MHz"
+        [[ -n "$GPU_DRIVER_VAL" ]]    && field "Driver"           "$GPU_DRIVER_VAL"
+        [[ -n "$GPU_UMD_VAL" ]]       && field "UMD Version"      "$GPU_UMD_VAL"
+        [[ -n "$GPU_INTERFACE_VAL" ]] && field "PCIe Interface"   "$GPU_INTERFACE_VAL"
         printf "\n"
     done
     printf "\n\n"

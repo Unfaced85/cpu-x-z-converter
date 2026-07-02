@@ -41,7 +41,7 @@ if (!file_exists($file)) {
     exit(2);
 }
 
-require_once __DIR__ . '/../parser/HardwareParser_CPUZ_Text.php';
+require_once __DIR__ . '/../pcgh-parser/HardwareParser_CPUZ_Text.php';
 
 // ---------------------------------------------------------------------------
 // Run parser
@@ -53,8 +53,8 @@ if ($parser->error) {
     exit(1);
 }
 
-$versionOk = $parser->checkVersion();
 $parser->parseFile();
+$versionOk = $parser->checkVersion();
 $data = $parser->getData();
 
 // ---------------------------------------------------------------------------
