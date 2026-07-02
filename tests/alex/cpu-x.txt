@@ -1,25 +1,26 @@
+[0mWriting daemon log to '/tmp/cpu-x-daemon.log' file...[0m
   [1;34m>>>>>>>>>> CPU <<<<<<<<<<[0m
 
 	[1;34m***** Clocks *****[0m
-      Core Speed: 4799 MHz
-      Multiplier: 
-       Bus Speed: 
-           Usage:   1,65 %
+      Core Speed: 4322 MHz
+      Multiplier: x43,2 (30-42)
+       Bus Speed: 100,00 MHz
+           Usage:   1,75 %
 
     [1;34m####### #0 performance #######[0m
 	[1;34m***** Processor *****[0m
           Vendor: AMD
        Code Name: Ryzen 7 (Raphael)
-         Package: AM5 (LGA-1718)
+         Package: AM5
       Technology: TSMC N5
-         Voltage: 
+         Voltage: 0,290 V
    Specification: AMD Ryzen 7 7800X3D 8-Core Processor
           Family: 0xF
     Disp. Family: 0x19
            Model: 0x1
      Disp. Model: 0x61
         Stepping: 2
-           Temp.: 57,62°C
+           Temp.: 61,50°C
     Instructions: SMT, MMX(+), SSE(1, 2, 3, 3S, 4.1, 4.2, 4A), AVX(1, 2, 512), FMA(3), AES, CLMUL, RdRand, SHA, AMD-V, x86-64
 
 	[1;34m***** Caches *****[0m
@@ -38,15 +39,15 @@
     [1;34m####### #0 performance #######[0m
 	[1;34m***** L1 Cache *****[0m
             Size:  8 x   32 kB,  8-way associative, 64-bytes line size
-           Speed: 106369,50 MB/s
+           Speed: 96563,40 MB/s
 
 	[1;34m***** L2 Cache *****[0m
             Size:  8 x 1024 kB,  8-way associative, 64-bytes line size
-           Speed: 78371,90 MB/s
+           Speed: 71471,40 MB/s
 
 	[1;34m***** L3 Cache *****[0m
             Size: 96 MB, 16-way associative, 64-bytes line size
-           Speed: 74209,10 MB/s
+           Speed: 71633,00 MB/s
 
 
   [1;34m>>>>>>>>>> Motherboard <<<<<<<<<<[0m
@@ -60,12 +61,39 @@
            Brand: American Megatrends Inc.
          Version: 3222
             Date: 03/05/2025
-        ROM Size: 
+        ROM Size: 64 @KiB@ / 32 @MiB@
           EFI PK: ASUSTeK MotherBoard PK Certificate (subject) / ASUSTeK MotherBoard PK Certificate (issuer)
 
 	[1;34m***** Chipset *****[0m
           Vendor: Advanced Micro Devices, Inc. [AMD]
            Model: FCH LPC Bridge
+
+
+  [1;34m>>>>>>>>>> Memory <<<<<<<<<<[0m
+
+	[1;34m***** Stick 0 *****[0m
+    Manufacturer: G Skill Intl
+     Part Number: F5-6000J3238G32G              
+            Type: DIMM DDR5
+     Type Detail: Synchronous Unbuffered (Unregistered)
+  Device Locator: DIMM 1
+    Bank Locator: P0 CHANNEL A
+            Rank: 2
+            Size: 32 @GiB@
+           Speed: 6000 MT/s (configured) / 4800 MT/s (max)
+         Voltage: 1.1 V (min) / 1.1 V (configured) / 1.1 V (max)
+
+	[1;34m***** Stick 1 *****[0m
+    Manufacturer: G Skill Intl
+     Part Number: F5-6000J3238G32G              
+            Type: DIMM DDR5
+     Type Detail: Synchronous Unbuffered (Unregistered)
+  Device Locator: DIMM 1
+    Bank Locator: P0 CHANNEL B
+            Rank: 2
+            Size: 32 @GiB@
+           Speed: 6000 MT/s (configured) / 4800 MT/s (max)
+         Voltage: 1.1 V (min) / 1.1 V (configured) / 1.1 V (max)
 
 
   [1;34m>>>>>>>>>> System <<<<<<<<<<[0m
@@ -74,14 +102,14 @@
             Name: CachyOS
           Kernel: Linux 7.1.2-3-cachyos
         Hostname: UnfacedCachy
-          Uptime: 0 days, 0 hours, 19 minutes, 25 seconds
+          Uptime: 0 days, 2 hours, 8 minutes, 38 seconds
 
 	[1;34m***** Memory *****[0m
-            Used:  7,70 GiB / 62,44 GiB
-         Buffers:  0,07 GiB / 62,44 GiB
-          Cached: 29,11 GiB / 62,44 GiB
-            Free: 26,60 GiB / 62,44 GiB
-            Swap:  0,00 GiB / 62,44 GiB
+            Used:  9,39 GiB / 62,44 GiB
+         Buffers:  0,04 GiB / 62,44 GiB
+          Cached: 17,12 GiB / 62,44 GiB
+            Free: 36,95 GiB / 62,44 GiB
+            Swap:  0,64 GiB / 62,44 GiB
 
 
   [1;34m>>>>>>>>>> Graphics <<<<<<<<<<[0m
@@ -95,13 +123,13 @@
        Device ID: 0x1002:0x744C
    VBIOS Version: 113-31XFSHBS1-L01
        Interface: PCIe Gen4x16 (current) / Gen4x16 (max)
-     Temperature: 53,00°C
-           Usage: 2%
-    Core Voltage: 0,24 V
-       Power Avg: 81,00 W
-      Core Clock: 49 MHz
+     Temperature: 64,00°C
+           Usage: 4%
+    Core Voltage: 0,55 V
+       Power Avg: 82,00 W
+      Core Clock: 79 MHz
     Memory Clock: 1249 MHz
-     Memory Used: 8917 MiB / 24560 MiB
+     Memory Used: 1743 MiB / 24560 MiB
    Resizable BAR: Enabled
        Vulkan RT: Enabled
   OpenGL Version: 4.6 (Core) / 4.6 (Compatibility)
