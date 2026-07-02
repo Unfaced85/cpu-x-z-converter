@@ -31,6 +31,18 @@ The script reads from a file path or stdin:
 cpu-x --dump | src/convert.sh /dev/stdin > converted.txt
 ```
 
+> **Note:** cpu-x requires root privileges (or the `cpu-x_polkit` daemon) to access per-DIMM SPD data via SMBIOS. Without it, the Memory/SPD section may be empty or absent from the dump output, resulting in no RAM data in the converted report. Run with full privileges to ensure all sections are captured:
+>
+> ```bash
+> # Via Polkit (desktop environments)
+> cpu-x_polkit --dump > cpu-x.txt
+>
+> # Or as root
+> sudo cpu-x --dump > cpu-x.txt
+> ```
+>
+> After running, check that the output contains `>>>>>>>>>> Memory <<<<<<<<<<` before converting.
+
 ---
 
 ## What it converts

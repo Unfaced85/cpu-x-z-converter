@@ -96,8 +96,9 @@ parse_fields() {
         if (k == "Type")        return "Typ"
         if (k == "Type Detail") return "Typdetail"
         if (k == "Speed")       return "Geschwindigkeit"
+        if (k == "Rank")        return "Reihe"
         if (k == "Manufacturer" && section == "MEM") return "Hersteller"
-        if (k == "Size")        return "Größe"
+        if (k == "Size" && section == "MEM") return "Größe"
         # GPU
         if (k == "Device ID")   return "Gerätekennung"
         if (k == "VBIOS Version") return "VBIOS-Version"
@@ -658,17 +659,29 @@ transform_gpu_name() {
         trimmed+=("$p")
     done
 
-    # Prefer plain XT (not XTX)
-    for p in "${trimmed[@]}"; do
-        if echo "$p" | grep -qE 'XT$' || echo "$p" | grep -qE 'XT '; then
-            if ! echo "$p" | grep -q 'XTX'; then
-                best="$p"
-                break
-            fi
+    # The first variant is the full name (e.g. "Radeon RX 7900 XT").
+    # Remaining variants are suffix-only (e.g. "7900 XTX", "7900 GRE").
+    # Check suffix-only variants first, preferring XTX > XT, then fallback to first variant.
+
+    # 1) XTX from suffix variants (highest-end model)
+    for p in "${trimmed[@]:1}"; do
+        if echo "$p" | grep -q 'XTX'; then
+            best="$p"
+            break
         fi
     done
 
-    # Then try XTX
+    # 2) Plain XT (not XTX) from suffix variants
+    if [[ -z "$best" ]]; then
+        for p in "${trimmed[@]:1}"; do
+            if echo "$p" | grep -qE 'XT$|XT ' && ! echo "$p" | grep -q 'XTX'; then
+                best="$p"
+                break
+            fi
+        done
+    fi
+
+    # 3) XTX from ALL variants (covers single-variant case)
     if [[ -z "$best" ]]; then
         for p in "${trimmed[@]}"; do
             if echo "$p" | grep -q 'XTX'; then
@@ -678,7 +691,17 @@ transform_gpu_name() {
         done
     fi
 
-    # Fallback: first variant
+    # 4) Plain XT from ALL variants
+    if [[ -z "$best" ]]; then
+        for p in "${trimmed[@]}"; do
+            if echo "$p" | grep -qE 'XT$|XT ' && ! echo "$p" | grep -q 'XTX'; then
+                best="$p"
+                break
+            fi
+        done
+    fi
+
+    # 5) Fallback: first variant
     if [[ -z "$best" ]]; then
         best="${trimmed[0]}"
     fi
