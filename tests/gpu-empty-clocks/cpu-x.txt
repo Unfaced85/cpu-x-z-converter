@@ -1,0 +1,141 @@
+[0mWriting daemon log to '/tmp/cpu-x-daemon.log' file...[0m
+[1;33mNo kernel driver in use for graphic card at path [0m
+[1;33mThere is no platform with OpenCL support (CL_PLATFORM_NOT_FOUND_KHR)[0m
+  [1;34m>>>>>>>>>> CPU <<<<<<<<<<[0m
+
+	[1;34m***** Clocks *****[0m
+      Core Speed: 5215 MHz
+      Multiplier: x52,1 (6,0-53)
+       Bus Speed: 100,00 MHz
+           Usage:   6,06 %
+
+    [1;34m####### #0 general #######[0m
+	[1;34m***** Processor *****[0m
+          Vendor: AMD
+       Code Name: Ryzen 7 (Granite Ridge)
+         Package: AM5
+      Technology: TSMC N4
+         Voltage: 0,290 V
+   Specification: AMD Ryzen 7 9800X3D 8-Core Processor
+          Family: 0xF
+    Disp. Family: 0x1A
+           Model: 0x4
+     Disp. Model: 0x44
+        Stepping: 0
+           Temp.: 44,88°C
+    Instructions: SMT, MMX(+), SSE(1, 2, 3, 3S, 4.1, 4.2, 4A), AVX(1, 2, 512), FMA(3), AES, CLMUL, RdRand, SHA, AMD-V, x86-64
+
+	[1;34m***** Caches *****[0m
+         L1 Data:  8 x   48 kB, 12-way
+        L1 Inst.:  8 x   32 kB,  8-way
+         Level 2:  8 x 1024 kB, 16-way
+         Level 3: 96 MB, 16-way
+
+	[1;34m***** Count *****[0m
+           Cores: 8
+         Threads: 16
+
+
+  [1;34m>>>>>>>>>> Caches <<<<<<<<<<[0m
+
+    [1;34m####### #0 general #######[0m
+	[1;34m***** L1 Cache *****[0m
+            Size:  8 x   48 kB, 12-way associative, 64-bytes line size
+           Speed: 143318,60 MB/s
+
+	[1;34m***** L2 Cache *****[0m
+            Size:  8 x 1024 kB, 16-way associative, 64-bytes line size
+           Speed: 117754,40 MB/s
+
+	[1;34m***** L3 Cache *****[0m
+            Size: 96 MB, 16-way associative, 64-bytes line size
+           Speed: 102724,30 MB/s
+
+
+  [1;34m>>>>>>>>>> Motherboard <<<<<<<<<<[0m
+
+	[1;34m***** Motherboard *****[0m
+    Manufacturer: ASUSTeK COMPUTER INC.
+           Model: ROG STRIX B850-F GAMING WIFI
+        Revision: Rev 1.xx
+
+	[1;34m***** BIOS *****[0m
+           Brand: American Megatrends Inc.
+         Version: 1402
+            Date: 11/12/2025
+        ROM Size: 64 @KiB@ / 32 @MiB@
+          EFI PK: 
+
+	[1;34m***** Chipset *****[0m
+          Vendor: Advanced Micro Devices, Inc. [AMD]
+           Model: FCH LPC Bridge
+
+
+  [1;34m>>>>>>>>>> Memory <<<<<<<<<<[0m
+
+	[1;34m***** Stick 0 *****[0m
+    Manufacturer: Team Group Inc
+     Part Number: UD5-6400                      
+            Type: DIMM DDR5
+     Type Detail: Synchronous Unbuffered (Unregistered)
+  Device Locator: DIMM 1
+    Bank Locator: P0 CHANNEL A
+            Rank: 1
+            Size: 24 @GiB@
+           Speed: 5200 MT/s (configured) / 5200 MT/s (max)
+         Voltage: 1.1 V (min) / 1.1 V (configured) / 1.1 V (max)
+
+	[1;34m***** Stick 1 *****[0m
+    Manufacturer: Team Group Inc
+     Part Number: UD5-6400                      
+            Type: DIMM DDR5
+     Type Detail: Synchronous Unbuffered (Unregistered)
+  Device Locator: DIMM 1
+    Bank Locator: P0 CHANNEL B
+            Rank: 1
+            Size: 24 @GiB@
+           Speed: 5200 MT/s (configured) / 5200 MT/s (max)
+         Voltage: 1.1 V (min) / 1.1 V (configured) / 1.1 V (max)
+
+
+  [1;34m>>>>>>>>>> System <<<<<<<<<<[0m
+
+	[1;34m***** Operating System *****[0m
+            Name: Fedora Linux 44 (Workstation Edition)
+          Kernel: Linux 7.0.14-201.fc44.x86_64
+        Hostname: somehost
+          Uptime: 0 days, 0 hours, 52 minutes, 7 seconds
+
+	[1;34m***** Memory *****[0m
+            Used:  8,47 GiB / 46,69 GiB
+         Buffers:  0,01 GiB / 46,69 GiB
+          Cached: 32,59 GiB / 46,69 GiB
+            Free:  5,44 GiB / 46,69 GiB
+            Swap: 0,00 GiB / 8,00 GiB
+
+
+  [1;34m>>>>>>>>>> Graphics <<<<<<<<<<[0m
+
+	[1;34m***** Card 0 *****[0m
+          Vendor: AMD
+          Driver: None
+     UMD Version: Mesa 26.1.3
+           Model: Navi 48 [Radeon RX 9070/9070 XT/9070 GRE]
+    Compute Unit: 
+       Device ID: 0x1002:0x7550
+   VBIOS Version: 
+       Interface: 
+     Temperature: 
+           Usage: 
+    Core Voltage: 
+       Power Avg: 
+      Core Clock: 
+    Memory Clock: 
+     Memory Used: ??? / 16304 MiB
+   Resizable BAR: Enabled
+       Vulkan RT: Enabled
+  OpenGL Version: 4.6 (Core) / 4.6 (Compatibility)
+  Vulkan Version: 1.4.348
+  OpenCL Version: 
+
+

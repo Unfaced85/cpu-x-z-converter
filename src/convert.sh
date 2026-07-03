@@ -402,13 +402,13 @@ transform_tech() {
     local raw="$1"
     # Try to extract explicit "N<digits>" node from TSMC names
     local node
-    node=$(echo "$raw" | grep -oiE 'N([0-9]+(\.[0-9]+)?)' | grep -oE '[0-9]+(\.[0-9]+)?' | head -1)
+    node=$(echo "$raw" | grep -oiE 'N([0-9]+(\.[0-9]+)?)' | grep -oE '[0-9]+(\.[0-9]+)?' | head -1 || true)
     if [[ -n "$node" ]]; then
         echo "${node} nm"
         return
     fi
     # Try to extract plain "<digits> nm" or "<digits>nm"
-    node=$(echo "$raw" | grep -oE '[0-9]+(\.[0-9]+)? ?(nm|um)' | head -1)
+    node=$(echo "$raw" | grep -oE '[0-9]+(\.[0-9]+)? ?(nm|um)' | head -1 || true)
     if [[ -n "$node" ]]; then
         echo "$node" | sed 's/\([0-9]\)\(nm\|um\)/\1 \2/'
         return
@@ -485,7 +485,7 @@ transform_insn() {
 
     # SSE(1, 2, 3, 3S, 4.1, 4.2, 4A) -> individual names
     local sse_inner
-    sse_inner=$(echo "$raw" | grep -oE 'SSE\([^)]+\)' | sed 's/SSE(//;s/)//')
+    sse_inner=$(echo "$raw" | grep -oE 'SSE\([^)]+\)' | sed 's/SSE(//;s/)//' || true)
     if [[ -n "$sse_inner" ]]; then
         local IFS_SAVE="$IFS"; IFS=','
         for part in $sse_inner; do
@@ -514,7 +514,7 @@ transform_insn() {
 
     # AVX(1, 2)
     local avx_inner
-    avx_inner=$(echo "$raw" | grep -oE 'AVX\([^)]+\)' | sed 's/AVX(//;s/)//')
+    avx_inner=$(echo "$raw" | grep -oE 'AVX\([^)]+\)' | sed 's/AVX(//;s/)//' || true)
     if [[ -n "$avx_inner" ]]; then
         local IFS_SAVE="$IFS"; IFS=','
         for part in $avx_inner; do
@@ -530,7 +530,7 @@ transform_insn() {
 
     # FMA(3)
     local fma_inner
-    fma_inner=$(echo "$raw" | grep -oE 'FMA\([^)]+\)' | sed 's/FMA(//;s/)//')
+    fma_inner=$(echo "$raw" | grep -oE 'FMA\([^)]+\)' | sed 's/FMA(//;s/)//' || true)
     if [[ -n "$fma_inner" ]]; then
         local IFS_SAVE="$IFS"; IFS=','
         for part in $fma_inner; do
@@ -558,7 +558,7 @@ transform_bus() {
     local raw="$1"
     # Replace comma, strip MHz
     local num
-    num=$(echo "$raw" | sed 's/,/./' | grep -oE '[0-9]+(\.[0-9]+)?' | head -1)
+    num=$(echo "$raw" | sed 's/,/./' | grep -oE '[0-9]+(\.[0-9]+)?' | head -1 || true)
     if [[ -z "$num" ]]; then
         echo "100.0"
     else
@@ -571,7 +571,7 @@ transform_bus() {
 transform_core_speed() {
     local raw="$1"
     local num
-    num=$(echo "$raw" | grep -oE '[0-9]+(\.[0-9]+)?' | head -1)
+    num=$(echo "$raw" | grep -oE '[0-9]+(\.[0-9]+)?' | head -1 || true)
     if [[ -n "$num" ]]; then
         printf "%.1f" "$num"
     fi
@@ -598,7 +598,7 @@ transform_mem_speed() {
     local raw="$1"
     local memtype="${2:-DDR4}"
     local mts
-    mts=$(echo "$raw" | grep -oE '[0-9]+' | head -1)
+    mts=$(echo "$raw" | grep -oE '[0-9]+' | head -1 || true)
     if [[ -n "$mts" ]]; then
         local mhz=$(( mts / 2 ))
         echo "${memtype}-${mts} (${mhz} MHz)"
@@ -608,7 +608,7 @@ transform_mem_speed() {
 # Memory type/format: "DIMM DDR4" + detail -> type="DDR4", format="UDIMM"
 transform_mem_type() {
     local typ="$1"
-    echo "$typ" | grep -oE 'DDR[0-9]+'
+    echo "$typ" | grep -oE 'DDR[0-9]+' || true
 }
 
 transform_mem_format() {
@@ -988,8 +988,8 @@ if [[ "${GPU_MAX:-"-1"}" -ge 0 ]]; then
         GPU_MEMTYPE_OUT=$(transform_gpu_mem_type "$GPU_DEVID_VAL" "$GPU_MODEL_VAL")
 
         # Extract MHz from clock strings
-        GPU_CORECLK_NUM=$(echo "$GPU_CORECLK_VAL" | grep -oE '[0-9]+' | head -1)
-        GPU_MEMCLK_NUM=$(echo "$GPU_MEMCLK_VAL" | grep -oE '[0-9]+' | head -1)
+        GPU_CORECLK_NUM=$(echo "$GPU_CORECLK_VAL" | grep -oE '[0-9]+' | head -1 || true)
+        GPU_MEMCLK_NUM=$(echo "$GPU_MEMCLK_VAL" | grep -oE '[0-9]+' | head -1 || true)
 
         printf "Display adapter %d\t\n" "$i"
         [[ -n "$GPU_NAME_OUT" ]]      && field "Name"             "$GPU_NAME_OUT"
